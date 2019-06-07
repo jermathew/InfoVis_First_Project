@@ -1,8 +1,23 @@
 // BIG TODO: REFACTOR THIS CODE
+
+// svg items ids
+const CHRISTMAS_ITEMS = ["pine", 
+												 "top-left-circle", 
+												 "top-right-circle",
+												 "center-left-circle",
+												 "center-right-circle",
+												 "bottom-left-circle",
+												 "bottom-right-circle"
+												];
+
+let idToKey = {};
+
 d3.json("data/small-data.json")
   .then(
 	  function(data){
-		  console.table(data);
+			dataKeys = Object.keys(data[0])
+			console.table(data);
+			CHRISTMAS_ITEMS.slice(1).forEach((key, idx) => idToKey[key] = dataKeys[idx]);
 		  drawPlot(data);
 	  }
   );
@@ -15,27 +30,7 @@ function drawPlot(dataset){
 	function triggerSort(){
 		let selectedCircle = d3.select(this)
 		let circleClass = selectedCircle.attr("class")
-		let sortKey = null
-		switch (circleClass) {
-			case "top-left-circle":
-			  sortKey = 'a';
-			  break;
-			case "top-right-circle":
-			  sortKey = 'b';
-			  break;
-			case "center-left-circle":
-			  sortKey = 'c';
-			  break;
-			case "center-right-circle":
-			  sortKey = 'd';
-			  break;
-			case "bottom-left-circle":
-			   sortKey = 'e';
-				break;
-			case "bottom-right-circle":
-			   sortKey = 'f';
-			  break;
-		}
+		let sortKey = idToKey[circleClass]
 		sortBars(sortKey);
 	}
 
@@ -44,7 +39,7 @@ function drawPlot(dataset){
 		var sortedTrees = svg.selectAll("g.christmas-tree")
 							 .sort(function(a, b) {
 								 return d3.ascending(a[key], b[key]);
-								 });
+							 });
 		
 		sortedTrees.select("use.pine")
 					.transition()
@@ -123,101 +118,32 @@ function drawPlot(dataset){
 					.paddingInner(0.1);
 
 	//Select SVG element
-	var svg = d3.select("svg");
+	let svg = d3.select("svg");
 
 	//Create christmas trees placeholders
-	var christmasTrees = svg.selectAll("g.christmas-tree")
+	let christmasTrees = svg.selectAll("g.christmas-tree")
 							.data(dataset)
 							.enter()
 							.append("g")
 							.classed("christmas-tree", true)
 							.attr("pointer-events", "none");
 
+	CHRISTMAS_ITEMS.forEach(function(svgID){
+		let item = christmasTrees.append("use")
+								.attr("href", "images/christmas-tree.svg#" + svgID)
+								.classed(svgID, true)
+								.attr("x", function(d, i) {
+										return xScale(i);
+									})
+								.attr("width", xScale.bandwidth())
+								.attr("pointer-events", "auto");
 
-	//Put a pine for each placeholder
-	christmasTrees.append("use")
-				  .attr("href", "images/christmas-tree.svg#pine")
-				  .classed("pine", true)
-				  .attr("x", function(d, i) {
-					  return xScale(i);
-					})
-				  .attr("width", xScale.bandwidth())
-				  .attr("pointer-events", "auto");
-	
-
-	// Add christmas balls for each pine
-	christmasTrees.append("use")
-				  .attr("href", "images/christmas-tree.svg#top-left-circle")
-				  .attr("x", function(d, i) {
-					return xScale(i);
-				  })
-				  .attr("width", xScale.bandwidth())
-				  .classed("top-left-circle", true)
-				  .attr("pointer-events", "auto")
-				  .on("click", triggerSort)
+		if(svgID !== "pine"){
+			item.on("click", triggerSort)
 				  .append("title") .text(function(d) {
-					return "This value is " + d['a']; });
-	
-	christmasTrees.append("use")
-				  .attr("href", "images/christmas-tree.svg#top-right-circle")
-				  .attr("x", function(d, i) {
-					return xScale(i);
-				  })
-				  .attr("width", xScale.bandwidth())
-				  .classed("top-right-circle", true)
-				  .attr("pointer-events", "auto")
-				  .on("click", triggerSort)
-				  .append("title") .text(function(d) {
-					return "This value is " + d['b']; });	
+						let key = idToKey[svgID];
+						return "This value is " +  d[key]});
+		}
 
-
-	christmasTrees.append("use")
-				  .attr("href", "images/christmas-tree.svg#center-left-circle")
-				  .attr("x", function(d, i) {
-					return xScale(i);
-				  })
-				  .attr("width", xScale.bandwidth())
-				  .classed("center-left-circle", true)
-				  .attr("pointer-events", "auto")
-				  .on("click", triggerSort)
-				  .append("title") .text(function(d) {
-					return "This value is " + d['c']; });	
- 
-
-	christmasTrees.append("use")
-				  .attr("href", "images/christmas-tree.svg#center-right-circle")
-				  .attr("x", function(d, i) {
-					return xScale(i);
-				  })
-				  .attr("width", xScale.bandwidth())
-				  .classed("center-right-circle", true)
-				  .attr("pointer-events", "auto")
-				  .on("click", triggerSort)
-				  .append("title") .text(function(d) {
-					return "This value is " + d['d']; });
-
-
-	christmasTrees.append("use")
-				  .attr("href", "images/christmas-tree.svg#bottom-left-circle")
-				  .attr("x", function(d, i) {
-					return xScale(i);
-				  })
-				  .attr("width", xScale.bandwidth())
-				  .classed("bottom-left-circle", true)
-				  .attr("pointer-events", "auto")
-				  .on("click", triggerSort)
-				  .append("title") .text(function(d) {
-					return "This value is " + d['e']; });
-
-	christmasTrees.append("use")
-				  .attr("href", "images/christmas-tree.svg#bottom-right-circle")
-				  .attr("x", function(d, i) {
-					return xScale(i);
-				  })
-				  .attr("width", xScale.bandwidth())
-				  .classed("bottom-right-circle", true)
-				  .attr("pointer-events", "auto")
-				  .on("click", triggerSort)
-				  .append("title") .text(function(d) {
-					return "This value is " + d['f']; });
+	})
 }
