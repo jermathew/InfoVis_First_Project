@@ -12,6 +12,35 @@ const CHRISTMAS_ITEMS = ["pine",
 
 let idToKey = {};
 
+// onclick event listener function
+function triggerSort(xScale){
+	let selectedCircle = d3.select(this)
+	console.log(this)
+	let circleClass = selectedCircle.attr("class")
+	let sortKey = idToKey[circleClass]
+	sortBars(sortKey, xScale);
+}
+
+function sortBars(key, xScale) {
+	let svg = d3.select("svg");
+	let sortedTrees = svg.selectAll("g.christmas-tree")
+	.sort(function(a, b) {
+		return d3.ascending(a[key], b[key]);
+	});
+
+	CHRISTMAS_ITEMS.forEach(function(svgID){
+		sortedTrees.select("use." + svgID)
+		.transition()
+		.delay(function(d, i) {
+			return i * 50;
+		})
+		.duration(1000)
+		.attr("x", function(d, i) {
+			return xScale(i);
+		});
+	})
+};
+
 d3.json("data/small-data.json")
 .then(
 	function(data){
@@ -24,35 +53,7 @@ d3.json("data/small-data.json")
 	
 	function drawPlot(dataset){
 		
-		// onclick event listener function
-		function triggerSort(){
-			let selectedCircle = d3.select(this)
-			let circleClass = selectedCircle.attr("class")
-			let sortKey = idToKey[circleClass]
-			sortBars(sortKey);
-		}
-		
-		function sortBars(key) {
-			let svg = d3.select("svg");
-			let sortedTrees = svg.selectAll("g.christmas-tree")
-			.sort(function(a, b) {
-				return d3.ascending(a[key], b[key]);
-			});
-
-			CHRISTMAS_ITEMS.forEach(function(svgID){
-				sortedTrees.select("use." + svgID)
-				.transition()
-				.delay(function(d, i) {
-					return i * 50;
-				})
-				.duration(1000)
-				.attr("x", function(d, i) {
-					return xScale(i);
-				});
-			})
-		};
-		
-		var xScale = d3.scaleBand()
+		let xScale = d3.scaleBand()
 		.domain(d3.range(dataset.length))
 		.rangeRound([0, 1250]) // edit this line
 		.paddingInner(0.1);
@@ -68,6 +69,7 @@ d3.json("data/small-data.json")
 		.classed("christmas-tree", true)
 		.attr("pointer-events", "none");
 		
+		// put a pine and six christmas balls for each placeholder 
 		CHRISTMAS_ITEMS.forEach(function(svgID){
 			let item = christmasTrees.append("use")
 			.attr("href", "images/christmas-tree.svg#" + svgID)
@@ -79,7 +81,9 @@ d3.json("data/small-data.json")
 			.attr("pointer-events", "auto");
 			
 			if(svgID !== "pine"){
-				item.on("click", triggerSort)
+				item.on("click", function(){
+					triggerSort.call(this, xScale)
+				})
 				.append("title") .text(function(d) {
 					let key = idToKey[svgID];
 					return "This value is " +  d[key]});
