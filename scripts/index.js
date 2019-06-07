@@ -8,11 +8,17 @@ const CHRISTMAS_ITEMS = ["pine",
 "bottom-right-circle"
 ];
 
+// side padding (percent)
+const HORIZONTAL_PADDING = 0.01
+
+// viewport width and height
 let pageWidth = window.innerWidth
 let pageHeight = window.innerHeight
 
 // svg id to dataset field
 let idToKey = {};
+
+
 
 // onclick event listener function
 function triggerSort(xScale){
@@ -47,7 +53,7 @@ function drawPlot(dataset){
 
 	let xScale = d3.scaleBand()
 					.domain(d3.range(dataset.length))
-					.rangeRound([0, pageWidth]) // edit this line
+					.rangeRound([pageWidth * HORIZONTAL_PADDING, pageWidth - (pageWidth * HORIZONTAL_PADDING)])
 					.paddingInner(0.1);
 		
 	//Select SVG element
