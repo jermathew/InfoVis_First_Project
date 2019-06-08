@@ -23,6 +23,7 @@ let idToKey = {};
 
 // onclick event listener function
 function triggerSort(xScale){
+	console.log(this)
 	let selectedCircle = d3.select(this)
 	let circleClass = selectedCircle.attr("class")
 	let sortKey = idToKey[circleClass]
@@ -39,7 +40,7 @@ function sortBars(key, xScale) {
 						 });
 
 	CHRISTMAS_ITEMS.forEach(function(svgID){
-		sortedTrees.select("use." + svgID)
+		sortedTrees.select("." + svgID)
 		.transition()
 		.delay(function(d, i) {
 			return i * 50;
@@ -64,21 +65,35 @@ function drawPlot(dataset){
 						.range(d3.schemeAccent);
 
 	// map each field value to a sequential color scale
-	let colorScales = {}
+	let colorScaleMap = {}
+
+	// map each field value to each christmas ball's radius
+	let radiusScaleMap = {}
 
 	CHRISTMAS_BALLS.forEach(function(svgID){
 		let color = ballColors(svgID);
 		let datasetField = idToKey[svgID];
-		let minValue = 0
+		let minValue = d3.min(dataset, function(d){
+			return d[datasetField];
+		});
+
 		let maxValue = d3.max(dataset, function(d){
 			return d[datasetField];
 		});
 
-		let colorSequentialScale = d3.scaleLinear()
-									 .domain([minValue, maxValue])
+		// set color scale
+		let colorScale = d3.scaleLinear()
+									 .domain([0, maxValue])
 		  							 .range(["white", color]);
 		
-		colorScales[svgID] = colorSequentialScale;
+		colorScaleMap[svgID] = colorScale;
+
+		// set radius scale
+		let radiusScale = d3.scaleSqrt()
+							.domain([minValue, maxValue])
+							.range([20, 40]);
+
+		radiusScaleMap[svgID] = radiusScale;
 	})
 		
 	//Select SVG element
@@ -97,29 +112,79 @@ function drawPlot(dataset){
 	
 	// put a pine and six christmas balls for each placeholder 
 	CHRISTMAS_ITEMS.forEach(function(svgID){
-		let item = christmasTrees.append("use")
-								 .attr("href", "images/christmas-tree.svg#" + svgID)
-								 .classed(svgID, true)
-								 .attr("x", function(d, i) {
-									 return xScale(i);
-								 })
-								 .attr("width", xScale.bandwidth())
-								 .attr("pointer-events", "auto");
+		let item = null;
+
+		if(svgID === "pine") {
+			item = christmasTrees.append("use")
+								 .attr("href", "images/christmas-tree.svg#" + svgID);
+		}
+
+		else {
+			item = christmasTrees.append("svg")
+					 			 .attr("viewBox", "-3 0 512 512.00001")
+		}
+
+		item.classed(svgID, true)
+			.attr("x", function(d, i) {
+				 return xScale(i);
+			})
+			.attr("width", xScale.bandwidth())
+			.attr("pointer-events", "auto");
+
 								
 		if(svgID !== "pine"){
+
 			item.on("click", function(){
 				triggerSort.call(this, xScale)
-				})
-				.style("fill", function(d,i){
-					let key = idToKey[svgID];
-					let value = d[key];
-					let scaleFunction = colorScales[svgID];
-					return scaleFunction(value);
 				})
 				.append("title") .text(function(d) {
 					let key = idToKey[svgID];
 					return "This value is " +  d[key];
 				});
+
+			let circle = item.append("circle")
+							 .attr("stroke", "black")
+							 .attr("stroke-width", 2)
+							 .attr("fill", function(d, i){
+								let key = idToKey[svgID];
+								let value = d[key];
+								let scaleFunction = colorScaleMap[svgID];
+								return scaleFunction(value);
+							 })
+							 .attr("r", function(d, i){
+								let key = idToKey[svgID];
+								let value = d[key];
+								let scaleFunction = radiusScaleMap[svgID];
+								return scaleFunction(value);
+							 })
+
+			switch (svgID) {
+			  case "top-left-circle":
+			    circle.attr("cx", "69")
+			    	  .attr("cy", "160");
+			    break;
+			  case "top-right-circle":
+			    circle.attr("cx", "437")
+			    	  .attr("cy", "160");
+			    break;
+			  case "center-left-circle":
+			    circle.attr("cx", "44")
+			    	  .attr("cy", "290");
+			    break;
+			  case "center-right-circle":
+			    circle.attr("cx", "462")
+			    	  .attr("cy", "290");
+			    break;
+			  case "bottom-left-circle":
+			    circle.attr("cx", "44")
+			    	  .attr("cy", "433");
+			    break;
+			  case "bottom-right-circle":
+			    circle.attr("cx", "462")
+			    	  .attr("cy", "433");
+			    break;
+			}
+
 		}
 	})
 }
