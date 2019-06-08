@@ -8,6 +8,8 @@ const CHRISTMAS_ITEMS = ["pine",
 "bottom-right-circle"
 ];
 
+const CHRISTMAS_BALLS = CHRISTMAS_ITEMS.slice(1);
+
 // side padding (percent)
 const HORIZONTAL_PADDING = 0.01
 
@@ -18,6 +20,9 @@ let pageHeight = window.innerHeight
 // svg id to dataset field
 let idToKey = {};
 
+let ballColors =  d3.scaleOrdinal()
+					.domain(CHRISTMAS_BALLS)
+					.range(d3.schemeAccent);
 
 
 // onclick event listener function
@@ -27,6 +32,7 @@ function triggerSort(xScale){
 	let sortKey = idToKey[circleClass]
 	sortBars(sortKey, xScale);
 }
+
 
 function sortBars(key, xScale) {
 	let svg = d3.select("svg");
@@ -48,6 +54,7 @@ function sortBars(key, xScale) {
 		});
 	})
 };
+
 
 function drawPlot(dataset){
 
@@ -81,26 +88,27 @@ function drawPlot(dataset){
 								 .attr("width", xScale.bandwidth())
 								 .attr("pointer-events", "auto");
 								
-								 if(svgID !== "pine"){
-									 item.on("click", function(){
-										 triggerSort.call(this, xScale)
-									 })
-										 .append("title") .text(function(d) {
-											 let key = idToKey[svgID];
-											 return "This value is " +  d[key]
-										 });
+		if(svgID !== "pine"){
+			item.on("click", function(){
+				triggerSort.call(this, xScale)
+				})
+				.style("fill", ballColors(svgID))
+				.append("title") .text(function(d) {
+					let key = idToKey[svgID];
+					return "This value is " +  d[key]
+				});
 		}
-
 	})
 }
 
+
 d3.json("data/data.json")
-.then(
+  .then(
 	function(data){
 		dataKeys = Object.keys(data[0]);
 		console.table(data);
 		// populate idToKey object
-		CHRISTMAS_ITEMS.slice(1).forEach((key, idx) => idToKey[key] = dataKeys[idx]);
+		CHRISTMAS_BALLS.forEach((key, idx) => idToKey[key] = dataKeys[idx]);
 		drawPlot(data);
 	}
-	);
+  );
