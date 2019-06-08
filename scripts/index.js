@@ -20,10 +20,6 @@ let pageHeight = window.innerHeight
 // svg id to dataset field
 let idToKey = {};
 
-let ballColors =  d3.scaleOrdinal()
-					.domain(CHRISTMAS_BALLS)
-					.range(d3.schemeAccent);
-
 
 // onclick event listener function
 function triggerSort(xScale){
@@ -62,6 +58,28 @@ function drawPlot(dataset){
 					.domain(d3.range(dataset.length))
 					.rangeRound([pageWidth * HORIZONTAL_PADDING, pageWidth - (pageWidth * HORIZONTAL_PADDING)])
 					.paddingInner(0.1);
+
+	let ballColors =  d3.scaleOrdinal()
+						.domain(CHRISTMAS_BALLS)
+						.range(d3.schemeAccent);
+
+	// map each field value to a sequential color scale
+	let colorScales = {}
+
+	CHRISTMAS_BALLS.forEach(function(svgID){
+		let color = ballColors(svgID);
+		let datasetField = idToKey[svgID];
+		let minValue = 0
+		let maxValue = d3.max(dataset, function(d){
+			return d[datasetField];
+		});
+
+		let colorSequentialScale = d3.scaleLinear()
+									 .domain([minValue, maxValue])
+		  							 .range(["white", color]);
+		
+		colorScales[svgID] = colorSequentialScale;
+	})
 		
 	//Select SVG element
 	let svg = d3.select("body")
@@ -92,21 +110,27 @@ function drawPlot(dataset){
 			item.on("click", function(){
 				triggerSort.call(this, xScale)
 				})
-				.style("fill", ballColors(svgID))
+				.style("fill", function(d,i){
+					let key = idToKey[svgID];
+					let value = d[key];
+					let scaleFunction = colorScales[svgID];
+					return scaleFunction(value);
+				})
 				.append("title") .text(function(d) {
 					let key = idToKey[svgID];
-					return "This value is " +  d[key]
+					return "This value is " +  d[key];
 				});
 		}
 	})
 }
 
 
-d3.json("data/data.json")
+d3.json("data/small-data.json")
   .then(
 	function(data){
 		dataKeys = Object.keys(data[0]);
 		console.table(data);
+
 		// populate idToKey object
 		CHRISTMAS_BALLS.forEach((key, idx) => idToKey[key] = dataKeys[idx]);
 		drawPlot(data);
