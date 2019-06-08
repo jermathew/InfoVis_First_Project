@@ -1,3 +1,4 @@
+// Refactor this code
 // svg items ids
 const CHRISTMAS_ITEMS = ["pine", 
 "top-left-circle", 
@@ -70,6 +71,9 @@ function drawPlot(dataset){
 	// map each field value to each christmas ball's radius
 	let radiusScaleMap = {}
 
+	// map each field value to each christmas ball's y position
+	let yPositionScaleMap = {}
+
 	CHRISTMAS_BALLS.forEach(function(svgID){
 		let color = ballColors(svgID);
 		let datasetField = idToKey[svgID];
@@ -81,19 +85,39 @@ function drawPlot(dataset){
 			return d[datasetField];
 		});
 
+		console.log(minValue - (maxValue * 0.1))
 		// set color scale
 		let colorScale = d3.scaleLinear()
-									 .domain([0, maxValue])
+									 .domain([- maxValue, maxValue])
 		  							 .range(["white", color]);
 		
-		colorScaleMap[svgID] = colorScale;
-
 		// set radius scale
 		let radiusScale = d3.scaleSqrt()
 							.domain([minValue, maxValue])
-							.range([20, 40]);
+							.range([30, 40]);
 
+		let yPositionScale = d3.scaleSqrt()
+							   .domain([minValue, maxValue]);
+
+
+		switch (svgID) {
+		  case "top-left-circle":
+		  case "top-right-circle":
+		    yPositionScale.range([150, 160]);
+		    break;
+		  case "center-left-circle":
+		  case "center-right-circle":
+		    yPositionScale.range([280, 290]);
+		    break;
+		  case "bottom-left-circle":
+		  case "bottom-right-circle":
+		    yPositionScale.range([443, 453]);
+		    break;
+		}
+
+		colorScaleMap[svgID] = colorScale;		
 		radiusScaleMap[svgID] = radiusScale;
+		yPositionScaleMap[svgID] = yPositionScale;
 	})
 		
 	//Select SVG element
@@ -144,7 +168,7 @@ function drawPlot(dataset){
 
 			let circle = item.append("circle")
 							 .attr("stroke", "black")
-							 .attr("stroke-width", 2)
+							 .attr("stroke-width", 1)
 							 .attr("fill", function(d, i){
 								let key = idToKey[svgID];
 								let value = d[key];
@@ -160,30 +184,27 @@ function drawPlot(dataset){
 
 			switch (svgID) {
 			  case "top-left-circle":
-			    circle.attr("cx", "69")
-			    	  .attr("cy", "160");
+			    circle.attr("cx", "69");
 			    break;
 			  case "top-right-circle":
-			    circle.attr("cx", "437")
-			    	  .attr("cy", "160");
+			    circle.attr("cx", "437");
 			    break;
 			  case "center-left-circle":
-			    circle.attr("cx", "44")
-			    	  .attr("cy", "290");
+			  case "bottom-left-circle":
+			    circle.attr("cx", "44");
 			    break;
 			  case "center-right-circle":
-			    circle.attr("cx", "462")
-			    	  .attr("cy", "290");
-			    break;
-			  case "bottom-left-circle":
-			    circle.attr("cx", "44")
-			    	  .attr("cy", "433");
-			    break;
 			  case "bottom-right-circle":
-			    circle.attr("cx", "462")
-			    	  .attr("cy", "433");
+			    circle.attr("cx", "462");
 			    break;
 			}
+
+			circle.attr("cy", function(d, i){
+				let key = idToKey[svgID];
+				let value = d[key];
+				let scaleFunction = yPositionScaleMap[svgID];
+				return scaleFunction(value);
+	  		})
 
 		}
 	})
