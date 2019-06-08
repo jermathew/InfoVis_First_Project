@@ -88,7 +88,7 @@ function drawPlot(dataset){
 		console.log(minValue - (maxValue * 0.1))
 		// set color scale
 		let colorScale = d3.scaleLinear()
-									 .domain([- maxValue, maxValue])
+									 .domain([- maxValue/2, maxValue])
 		  							 .range(["white", color]);
 		
 		// set radius scale
@@ -200,11 +200,29 @@ function drawPlot(dataset){
 			}
 
 			circle.attr("cy", function(d, i){
+
 				let key = idToKey[svgID];
 				let value = d[key];
 				let scaleFunction = yPositionScaleMap[svgID];
 				return scaleFunction(value);
-	  		})
+	  			})
+				 .on("mouseover", function(d) {
+
+					//Get this circle's x/y values, then augment for the tooltip
+					let xPosition = parseFloat(d3.select(this.parentNode).attr("x")) + xScale.bandwidth(); 
+					let yPosition = parseFloat(d3.select(this.parentNode).attr("y"));
+					console.log(d3.select(this.parentNode))
+				    //Update the tooltip position and value
+				    d3.select("#tooltip")
+				      .style("left", xPosition + "px")
+				      .style("top", yPosition + "px");
+
+				    //Show the tooltip
+					d3.select("#tooltip")
+					  .attr("hidden", null);
+
+					})
+
 
 		}
 	})
