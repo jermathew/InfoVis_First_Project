@@ -1,4 +1,6 @@
 // Refactor this code
+
+// GLOBAL VARIABLES
 // svg items class names
 const CHRISTMAS_ITEMS = [
   "pine",
@@ -19,7 +21,7 @@ const HORIZONTAL_PADDING = 0.01;
 let pageWidth = window.innerWidth;
 let pageHeight = window.innerHeight;
 
-let svgHeight = pageHeight/2;
+let svgHeight = pageHeight / 2;
 
 // svg class name to dataset field map
 let classNameToKeyMap = {};
@@ -32,50 +34,54 @@ function onClickListener(xScale) {
   sortBars(sortKey, xScale);
 }
 
+// FUNCTIONS
 // onmouseover event listener function
-function onMouseOverListener(data){
+function onMouseOverListener(data) {
   let parentElement = d3.select(this);
   let dataRow = parentElement.data()[0];
   let selectedElement = d3.select(this);
-  let selectedElementTagName = selectedElement.node().tagName
+  let selectedElementTagName = selectedElement.node().tagName;
   let tooltip = d3.select("#tooltip");
   let datasetFields = Object.values(classNameToKeyMap);
   let cardBody = tooltip.select("div.card-body");
 
-  datasetFields.forEach(function(field){
-    cardBody.select("h6#" + field)
-            .select("small.text-primary")
-            .text(dataRow[field]);
-  })
+  datasetFields.forEach(function(field) {
+    cardBody
+      .select("h6#" + field)
+      .select("small.text-primary")
+      .text(dataRow[field]);
+  });
   // in case is a circle highlight the relative field value
-  if(selectedElementTagName === 'svg'){
+  if (selectedElementTagName === "svg") {
     let className = selectedElement.attr("class");
     let fieldName = classNameToKeyMap[className];
-    cardBody.select("h6#" + fieldName)
-            .classed("text-primary", false)
-            .classed("text-danger", true)
-            .select("small")
-            .classed("text-primary", false)
-            .classed("text-danger", true);
+    cardBody
+      .select("h6#" + fieldName)
+      .classed("text-primary", false)
+      .classed("text-danger", true)
+      .select("small")
+      .classed("text-primary", false)
+      .classed("text-danger", true);
   }
 
   // show the tooltip
   tooltip.attr("hidden", null);
 }
 
-function onMouseOutListener(){
+function onMouseOutListener() {
   let tooltip = d3.select("#tooltip");
   let datasetFields = Object.values(classNameToKeyMap);
   let cardBody = tooltip.select("div.card-body");
 
-  datasetFields.forEach(function(field){
-    cardBody.select("h6#" + field)
+  datasetFields.forEach(function(field) {
+    cardBody
+      .select("h6#" + field)
       .classed("text-primary", true)
       .classed("text-danger", false)
       .select("small")
       .classed("text-primary", true)
       .classed("text-danger", false);
-  })
+  });
 
   // hide the tooltip
   tooltip.attr("hidden", "");
@@ -177,17 +183,16 @@ function drawPlot(dataset) {
   let tooltip = d3.select("#tooltip");
   let datasetFields = Object.values(classNameToKeyMap);
   let cardBody = tooltip.select("div.card-body");
-  
-  datasetFields.forEach(function(field){
-    cardBody.append("h6")
+
+  datasetFields.forEach(function(field) {
+    cardBody
+      .append("h6")
       .classed("card-subtitle mb-2 text-primary", true)
       .attr("id", field)
       .text(field + ": ")
       .append("small")
       .classed("text-primary", true);
-
-  })
-
+  });
 
   //Select SVG element
   let svg = d3
@@ -196,12 +201,12 @@ function drawPlot(dataset) {
     .attr("width", pageWidth)
     .attr("height", svgHeight);
 
-
   // set background color using a rect whichs spans the whole svg canvas
-  svg.append("rect")
+  svg
+    .append("rect")
     .attr("width", pageWidth)
     .attr("height", svgHeight)
-    .attr("fill", "#E0FFFF")
+    .attr("fill", "#E0FFFF");
 
   //Create christmas trees placeholders
   let christmasTrees = svg
@@ -214,7 +219,7 @@ function drawPlot(dataset) {
 
   // put a pine and six christmas balls for each placeholder
   CHRISTMAS_ITEMS.forEach(function(svgID) {
-    let dataRow = christmasTrees
+    let dataRow = christmasTrees;
     let item = null;
 
     if (svgID === "pine") {
@@ -222,7 +227,7 @@ function drawPlot(dataset) {
         .append("use")
         .attr("href", "images/christmas-tree.svg#" + svgID);
     } else {
-      item = christmasTrees.append("svg").attr("viewBox", "-3 0 512 512.00001")
+      item = christmasTrees.append("svg").attr("viewBox", "-3 0 512 512.00001");
     }
 
     item
@@ -235,7 +240,7 @@ function drawPlot(dataset) {
       .on("mouseover", function(d) {
         onMouseOverListener.call(this);
       })
-      .on("mouseout", function(){
+      .on("mouseout", function() {
         onMouseOutListener.call(this);
       });
 
@@ -285,22 +290,24 @@ function drawPlot(dataset) {
           break;
       }
 
-      circle
-        .attr("cy", function(d, i) {
-          let key = classNameToKeyMap[svgID];
-          let value = d[key];
-          let scaleFunction = yPositionScaleMap[svgID];
-          return scaleFunction(value);
-        });
+      circle.attr("cy", function(d, i) {
+        let key = classNameToKeyMap[svgID];
+        let value = d[key];
+        let scaleFunction = yPositionScaleMap[svgID];
+        return scaleFunction(value);
+      });
     }
   });
 }
 
+// main scripts
 d3.json("data/data.json").then(function(data) {
   dataKeys = Object.keys(data[0]);
   console.table(data);
 
-  // populate idToKey object
-  CHRISTMAS_BALLS.forEach((key, idx) => (classNameToKeyMap[key] = dataKeys[idx]));
+  // populate classNameToKeyMap
+  CHRISTMAS_BALLS.forEach(
+    (key, idx) => (classNameToKeyMap[key] = dataKeys[idx])
+  );
   drawPlot(data);
 });
