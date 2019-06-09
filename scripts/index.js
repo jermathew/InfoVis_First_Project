@@ -12,6 +12,9 @@ const CHRISTMAS_ITEMS = [
   "bottom-right-circle"
 ];
 
+// sort order current state
+let ascendingOrder = {};
+
 const CHRISTMAS_BALLS = CHRISTMAS_ITEMS.slice(1);
 
 // side padding (percent)
@@ -21,7 +24,7 @@ const HORIZONTAL_PADDING = 0.01;
 let pageWidth = window.innerWidth;
 let pageHeight = window.innerHeight;
 
-let svgHeight = pageHeight / 2;
+let svgHeight = pageHeight / 1.5;
 
 // svg class name to dataset field map
 let classNameToKeyMap = {};
@@ -89,11 +92,23 @@ function onMouseOutListener() {
 
 // function which sorts christmas trees based on a given key
 function sortBars(key, xScale) {
-  let svg = d3.select("svg");
+  // flip value of ascendingOrder
+  ascendingOrder[key] = !ascendingOrder[key];
+  console.log(ascendingOrder);
 
-  let sortedTrees = svg.selectAll("g.christmas-tree").sort(function(a, b) {
-    return d3.ascending(a[key], b[key]);
-  });
+  let sortedTrees = null;
+  let svg = d3.select("svg");
+  if (ascendingOrder[key]) {
+    console.log("ascending");
+    sortedTrees = svg.selectAll("g.christmas-tree").sort(function(a, b) {
+      return d3.ascending(a[key], b[key]);
+    });
+  } else {
+    console.log("descending");
+    sortedTrees = svg.selectAll("g.christmas-tree").sort(function(a, b) {
+      return d3.descending(a[key], b[key]);
+    });
+  }
 
   CHRISTMAS_ITEMS.forEach(function(svgID) {
     sortedTrees
@@ -192,6 +207,11 @@ function drawPlot(dataset) {
       .text(field + ": ")
       .append("small")
       .classed("text-primary", true);
+  });
+
+  // initialize sorting order current status for each field
+  datasetFields.forEach(function(field) {
+    ascendingOrder[field] = false;
   });
 
   //Select SVG element
