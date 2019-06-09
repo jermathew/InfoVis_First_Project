@@ -94,17 +94,14 @@ function onMouseOutListener() {
 function sortBars(key, xScale) {
   // flip value of ascendingOrder
   ascendingOrder[key] = !ascendingOrder[key];
-  console.log(ascendingOrder);
 
   let sortedTrees = null;
   let svg = d3.select("svg");
   if (ascendingOrder[key]) {
-    console.log("ascending");
     sortedTrees = svg.selectAll("g.christmas-tree").sort(function(a, b) {
       return d3.ascending(a[key], b[key]);
     });
   } else {
-    console.log("descending");
     sortedTrees = svg.selectAll("g.christmas-tree").sort(function(a, b) {
       return d3.descending(a[key], b[key]);
     });
