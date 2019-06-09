@@ -1,0 +1,7 @@
+#tooltip {
+	position: absolute;
+	top: 3%;
+    left: 50%;
+	width: 18rem;
+	margin-left: -9rem;
+}

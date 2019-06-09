@@ -1,5 +1,5 @@
 // Refactor this code
-// svg items ids
+// svg items class names
 const CHRISTMAS_ITEMS = [
   "pine",
   "top-left-circle",
@@ -19,18 +19,69 @@ const HORIZONTAL_PADDING = 0.01;
 let pageWidth = window.innerWidth;
 let pageHeight = window.innerHeight;
 
-// svg id to dataset field
-let idToKey = {};
+let svgHeight = pageHeight/2;
+
+// svg class name to dataset field map
+let classNameToKeyMap = {};
 
 // onclick event listener function
-function triggerSort(xScale) {
-  console.log(this);
+function onClickListener(xScale) {
   let selectedCircle = d3.select(this);
   let circleClass = selectedCircle.attr("class");
-  let sortKey = idToKey[circleClass];
+  let sortKey = classNameToKeyMap[circleClass];
   sortBars(sortKey, xScale);
 }
 
+// onmouseover event listener function
+function onMouseOverListener(data){
+  let parentElement = d3.select(this);
+  let dataRow = parentElement.data()[0];
+  let selectedElement = d3.select(this);
+  let selectedElementTagName = selectedElement.node().tagName
+  let tooltip = d3.select("#tooltip");
+  let datasetFields = Object.values(classNameToKeyMap);
+  let cardBody = tooltip.select("div.card-body");
+
+  datasetFields.forEach(function(field){
+    cardBody.select("h6#" + field)
+            .select("small.text-primary")
+            .text(dataRow[field]);
+  })
+  // in case is a circle highlight the relative field value
+  if(selectedElementTagName === 'svg'){
+    let className = selectedElement.attr("class");
+    let fieldName = classNameToKeyMap[className];
+    cardBody.select("h6#" + fieldName)
+            .classed("text-primary", false)
+            .classed("text-danger", true)
+            .select("small")
+            .classed("text-primary", false)
+            .classed("text-danger", true);
+  }
+
+  // show the tooltip
+  tooltip.attr("hidden", null);
+}
+
+function onMouseOutListener(){
+  let tooltip = d3.select("#tooltip");
+  let datasetFields = Object.values(classNameToKeyMap);
+  let cardBody = tooltip.select("div.card-body");
+
+  datasetFields.forEach(function(field){
+    cardBody.select("h6#" + field)
+      .classed("text-primary", true)
+      .classed("text-danger", false)
+      .select("small")
+      .classed("text-primary", true)
+      .classed("text-danger", false);
+  })
+
+  // hide the tooltip
+  tooltip.attr("hidden", "");
+}
+
+// function which sorts christmas trees based on a given key
 function sortBars(key, xScale) {
   let svg = d3.select("svg");
 
@@ -53,6 +104,7 @@ function sortBars(key, xScale) {
 }
 
 function drawPlot(dataset) {
+  // setting scales
   let xScale = d3
     .scaleBand()
     .domain(d3.range(dataset.length))
@@ -62,7 +114,7 @@ function drawPlot(dataset) {
     ])
     .paddingInner(0.1);
 
-  let ballColors = d3
+  let categoricalColorScale = d3
     .scaleOrdinal()
     .domain(CHRISTMAS_BALLS)
     .range(d3.schemeAccent);
@@ -77,8 +129,8 @@ function drawPlot(dataset) {
   let yPositionScaleMap = {};
 
   CHRISTMAS_BALLS.forEach(function(svgID) {
-    let color = ballColors(svgID);
-    let datasetField = idToKey[svgID];
+    let color = categoricalColorScale(svgID);
+    let datasetField = classNameToKeyMap[svgID];
     let minValue = d3.min(dataset, function(d) {
       return d[datasetField];
     });
@@ -87,7 +139,6 @@ function drawPlot(dataset) {
       return d[datasetField];
     });
 
-    console.log(minValue - maxValue * 0.1);
     // set color scale
     let colorScale = d3
       .scaleLinear()
@@ -122,12 +173,35 @@ function drawPlot(dataset) {
     yPositionScaleMap[svgID] = yPositionScale;
   });
 
+  // initializing tooltip
+  let tooltip = d3.select("#tooltip");
+  let datasetFields = Object.values(classNameToKeyMap);
+  let cardBody = tooltip.select("div.card-body");
+  
+  datasetFields.forEach(function(field){
+    cardBody.append("h6")
+      .classed("card-subtitle mb-2 text-primary", true)
+      .attr("id", field)
+      .text(field + ": ")
+      .append("small")
+      .classed("text-primary", true);
+
+  })
+
+
   //Select SVG element
   let svg = d3
     .select("body")
     .append("svg")
     .attr("width", pageWidth)
-    .attr("height", pageHeight);
+    .attr("height", svgHeight);
+
+
+  // set background color using a rect whichs spans the whole svg canvas
+  svg.append("rect")
+    .attr("width", pageWidth)
+    .attr("height", svgHeight)
+    .attr("fill", "#E0FFFF")
 
   //Create christmas trees placeholders
   let christmasTrees = svg
@@ -140,6 +214,7 @@ function drawPlot(dataset) {
 
   // put a pine and six christmas balls for each placeholder
   CHRISTMAS_ITEMS.forEach(function(svgID) {
+    let dataRow = christmasTrees
     let item = null;
 
     if (svgID === "pine") {
@@ -147,7 +222,7 @@ function drawPlot(dataset) {
         .append("use")
         .attr("href", "images/christmas-tree.svg#" + svgID);
     } else {
-      item = christmasTrees.append("svg").attr("viewBox", "-3 0 512 512.00001");
+      item = christmasTrees.append("svg").attr("viewBox", "-3 0 512 512.00001")
     }
 
     item
@@ -156,16 +231,23 @@ function drawPlot(dataset) {
         return xScale(i);
       })
       .attr("width", xScale.bandwidth())
-      .attr("pointer-events", "auto");
+      .attr("pointer-events", "auto")
+      .on("mouseover", function(d) {
+        onMouseOverListener.call(this);
+      })
+      .on("mouseout", function(){
+        onMouseOutListener.call(this);
+      });
 
     if (svgID !== "pine") {
       item
         .on("click", function() {
-          triggerSort.call(this, xScale);
+          onClickListener.call(this, xScale);
         })
+        .attr("preserveAspectRatio", "xMidYMax meet")
         .append("title")
         .text(function(d) {
-          let key = idToKey[svgID];
+          let key = classNameToKeyMap[svgID];
           return "This value is " + d[key];
         });
 
@@ -174,13 +256,13 @@ function drawPlot(dataset) {
         .attr("stroke", "black")
         .attr("stroke-width", 1)
         .attr("fill", function(d, i) {
-          let key = idToKey[svgID];
+          let key = classNameToKeyMap[svgID];
           let value = d[key];
           let scaleFunction = colorScaleMap[svgID];
           return scaleFunction(value);
         })
         .attr("r", function(d, i) {
-          let key = idToKey[svgID];
+          let key = classNameToKeyMap[svgID];
           let value = d[key];
           let scaleFunction = radiusScaleMap[svgID];
           return scaleFunction(value);
@@ -205,35 +287,20 @@ function drawPlot(dataset) {
 
       circle
         .attr("cy", function(d, i) {
-          let key = idToKey[svgID];
+          let key = classNameToKeyMap[svgID];
           let value = d[key];
           let scaleFunction = yPositionScaleMap[svgID];
           return scaleFunction(value);
-        })
-        .on("mouseover", function(d) {
-          //Get this circle's x/y values, then augment for the tooltip
-          let xPosition =
-            parseFloat(d3.select(this.parentNode).attr("x")) +
-            xScale.bandwidth();
-          let yPosition = parseFloat(d3.select(this.parentNode).attr("y"));
-          console.log(d3.select(this.parentNode));
-          //Update the tooltip position and value
-          d3.select("#tooltip")
-            .style("left", xPosition + "px")
-            .style("top", yPosition + "px");
-
-          //Show the tooltip
-          d3.select("#tooltip").attr("hidden", null);
         });
     }
   });
 }
 
-d3.json("data/small-data.json").then(function(data) {
+d3.json("data/data.json").then(function(data) {
   dataKeys = Object.keys(data[0]);
   console.table(data);
 
   // populate idToKey object
-  CHRISTMAS_BALLS.forEach((key, idx) => (idToKey[key] = dataKeys[idx]));
+  CHRISTMAS_BALLS.forEach((key, idx) => (classNameToKeyMap[key] = dataKeys[idx]));
   drawPlot(data);
 });
