@@ -26,7 +26,7 @@ let pageHeight = window.innerHeight;
 
 let svgHeight = pageHeight / 1.5;
 
-// svg class name to dataset field map
+// object which maps class name to dataset fields
 let classNameToKeyMap = {};
 
 // onclick event listener function
@@ -36,6 +36,18 @@ function onClickListener(xScale) {
   let sortKey = classNameToKeyMap[circleClass];
   sortBars(sortKey, xScale);
 }
+
+// main scripts
+d3.json("data/data.json").then(function(data) {
+  dataKeys = Object.keys(data[0]);
+  console.table(data);
+
+  // populate classNameToKeyMap
+  CHRISTMAS_BALLS.forEach(
+    (key, idx) => (classNameToKeyMap[key] = dataKeys[idx])
+  );
+  drawPlot(data);
+});
 
 // FUNCTIONS
 // onmouseover event listener function
@@ -71,6 +83,7 @@ function onMouseOverListener(data) {
   tooltip.attr("hidden", null);
 }
 
+// onmouseout event listener function
 function onMouseOutListener() {
   let tooltip = d3.select("#tooltip");
   let datasetFields = Object.values(classNameToKeyMap);
@@ -121,8 +134,8 @@ function sortBars(key, xScale) {
   });
 }
 
-function drawPlot(dataset) {
-  // setting scales
+// function which returns scales for drawing the pine and the christmas balls
+function getScales(dataset) {
   let xScale = d3
     .scaleBand()
     .domain(d3.range(dataset.length))
@@ -191,7 +204,11 @@ function drawPlot(dataset) {
     yPositionScaleMap[svgID] = yPositionScale;
   });
 
-  // initializing tooltip
+  return [xScale, colorScaleMap, radiusScaleMap, yPositionScaleMap];
+}
+
+// create the tooltip
+function initializeTooltip() {
   let tooltip = d3.select("#tooltip");
   let datasetFields = Object.values(classNameToKeyMap);
   let cardBody = tooltip.select("div.card-body");
@@ -205,11 +222,29 @@ function drawPlot(dataset) {
       .append("small")
       .classed("text-primary", true);
   });
+}
 
-  // initialize sorting order current status for each field
+// initialize current sorting order status for each field of the dataset
+function initializeSortingState() {
+  let datasetFields = Object.values(classNameToKeyMap);
   datasetFields.forEach(function(field) {
     ascendingOrder[field] = false;
   });
+}
+
+// function which draws the christmas trees
+function drawPlot(dataset) {
+  // define and set the scale functions
+  let xScale, colorScaleMap, radiusScaleMap, yPositionScaleMap;
+  [xScale, colorScaleMap, radiusScaleMap, yPositionScaleMap] = getScales(
+    dataset
+  );
+
+  // initializing the tooltip
+  initializeTooltip();
+
+  // initialize current sorting order status for each field of the dataset
+  initializeSortingState();
 
   //Select SVG element
   let svg = d3
@@ -218,7 +253,7 @@ function drawPlot(dataset) {
     .attr("width", pageWidth)
     .attr("height", svgHeight);
 
-  // set background color using a rect whichs spans the whole svg canvas
+  // set a background color using a rect which spans the whole svg canvas
   svg
     .append("rect")
     .attr("width", pageWidth)
@@ -236,7 +271,6 @@ function drawPlot(dataset) {
 
   // put a pine and six christmas balls for each placeholder
   CHRISTMAS_ITEMS.forEach(function(svgID) {
-    let dataRow = christmasTrees;
     let item = null;
 
     if (svgID === "pine") {
@@ -261,6 +295,7 @@ function drawPlot(dataset) {
         onMouseOutListener.call(this);
       });
 
+    // considering only christmas balls svg container
     if (svgID !== "pine") {
       item
         .on("click", function() {
@@ -288,8 +323,15 @@ function drawPlot(dataset) {
           let value = d[key];
           let scaleFunction = radiusScaleMap[svgID];
           return scaleFunction(value);
+        })
+        .attr("cy", function(d, i) {
+          let key = classNameToKeyMap[svgID];
+          let value = d[key];
+          let scaleFunction = yPositionScaleMap[svgID];
+          return scaleFunction(value);
         });
 
+      // setting cx coordinates for each christmas balls
       switch (svgID) {
         case "top-left-circle":
           circle.attr("cx", "69");
@@ -306,25 +348,6 @@ function drawPlot(dataset) {
           circle.attr("cx", "462");
           break;
       }
-
-      circle.attr("cy", function(d, i) {
-        let key = classNameToKeyMap[svgID];
-        let value = d[key];
-        let scaleFunction = yPositionScaleMap[svgID];
-        return scaleFunction(value);
-      });
     }
   });
 }
-
-// main scripts
-d3.json("data/data.json").then(function(data) {
-  dataKeys = Object.keys(data[0]);
-  console.table(data);
-
-  // populate classNameToKeyMap
-  CHRISTMAS_BALLS.forEach(
-    (key, idx) => (classNameToKeyMap[key] = dataKeys[idx])
-  );
-  drawPlot(data);
-});
