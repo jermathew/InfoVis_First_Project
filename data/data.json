@@ -1,162 +1,162 @@
 [
   {
-    "cx":10,
-    "cy":10,
-    "altezza":5,
-    "larghezza":5,
-    "colore":30,
-    "ahboh":33
+    "a":10,
+    "b":10,
+    "c":5,
+    "d":5,
+    "e":30,
+    "f":33
   },
   {
-    "cx":20,
-    "cy":20,
-    "altezza":5,
-    "larghezza":5,
-    "colore":15,
-    "ahboh":33
+    "a":20,
+    "b":20,
+    "c":5,
+    "d":5,
+    "e":15,
+    "f":33
   },
   {
-    "cx":35,
-    "cy":35,
-    "altezza": 3,
-    "larghezza": 3,
-    "colore":10,
-    "ahboh":33
+    "a":35,
+    "b":35,
+    "c": 3,
+    "d": 3,
+    "e":10,
+    "f":33
   },
     {
-      "cx": 45,
-      "cy": 45,
-      "altezza":4,
-      "larghezza":4,
-      "colore":50,
-      "ahboh":33
+      "a": 45,
+      "b": 45,
+      "c":4,
+      "d":4,
+      "e":50,
+      "f":33
     },
     {
-      "cx": 10,
-      "cy": 45,
-      "altezza":4,
-      "larghezza":4,
-      "colore":50,
-    "ahboh":33
+      "a": 10,
+      "b": 45,
+      "c":4,
+      "d":4,
+      "e":50,
+    "f":33
     },
     {
-      "cx": 40,
-      "cy": 10,
-      "altezza":6,
-      "larghezza":6,
-      "colore":40,
-    "ahboh":33
+      "a": 40,
+      "b": 10,
+      "c":6,
+      "d":6,
+      "e":40,
+    "f":33
     },
     {
-      "cx": 25,
-      "cy": 10,
-      "altezza":3,
-      "larghezza":3,
-      "colore":95,
-    "ahboh":33
+      "a": 25,
+      "b": 10,
+      "c":3,
+      "d":3,
+      "e":95,
+    "f":33
     },
     {
-      "cx": 80,
-      "cy": 50,
-      "altezza":7,
-      "larghezza":7,
-      "colore":20,
-    "ahboh":33
+      "a": 80,
+      "b": 50,
+      "c":7,
+      "d":7,
+      "e":20,
+    "f":33
     },
     {
-      "cx": 45,
-      "cy": 20,
-      "altezza":7,
-      "larghezza":7,
-      "colore":40,
-    "ahboh":33
+      "a": 45,
+      "b": 20,
+      "c":7,
+      "d":7,
+      "e":40,
+    "f":33
     },
     {
-      "cx": 30,
-      "cy": 80,
-      "altezza":8,
-      "larghezza":8,
-      "colore":50,
-    "ahboh":33
+      "a": 30,
+      "b": 80,
+      "c":8,
+      "d":8,
+      "e":50,
+    "f":33
     },
     {
-      "cx": 90,
-      "cy": 90,
-      "altezza":10,
-      "larghezza":10,
-      "colore":70,
-    "ahboh":33
+      "a": 90,
+      "b": 90,
+      "c":10,
+      "d":10,
+      "e":70,
+    "f":33
     },
     {
-      "cx": 8,
-      "cy": 70,
-      "altezza":10,
-      "larghezza":5,
-      "colore":10,
-    "ahboh":33
+      "a": 8,
+      "b": 70,
+      "c":10,
+      "d":5,
+      "e":10,
+    "f":33
     },
     {
-      "cx": 50,
-      "cy": 65,
-      "altezza":10,
-      "larghezza":8,
-      "colore":90,
-    "ahboh":33
+      "a": 50,
+      "b": 65,
+      "c":10,
+      "d":8,
+      "e":90,
+    "f":33
     },
     {
-      "cx": 55,
-      "cy": 10,
-      "altezza":6,
-      "larghezza":10,
-      "colore":30,
-    "ahboh":33
+      "a": 55,
+      "b": 10,
+      "c":6,
+      "d":10,
+      "e":30,
+    "f":33
     },
     {
-      "cx": 70,
-      "cy": 5,
-      "altezza":10,
-      "larghezza":10,
-      "colore":5,
-    "ahboh":33
+      "a": 70,
+      "b": 5,
+      "c":10,
+      "d":10,
+      "e":5,
+    "f":33
     },
     {
-      "cx": 35,
-      "cy": 90,
-      "altezza":10,
-      "larghezza":7,
-      "colore":70,
-    "ahboh":33
+      "a": 35,
+      "b": 90,
+      "c":10,
+      "d":7,
+      "e":70,
+    "f":33
     },
     {
-      "cx": 95,
-      "cy": 10,
-      "altezza":8,
-      "larghezza":5,
-      "colore":15,
-    "ahboh":33
+      "a": 95,
+      "b": 10,
+      "c":8,
+      "d":5,
+      "e":15,
+    "f":33
     },
     {
-      "cx": 60,
-      "cy": 85,
-      "altezza":10,
-      "larghezza":10,
-      "colore":75,
-    "ahboh":33
+      "a": 60,
+      "b": 85,
+      "c":10,
+      "d":10,
+      "e":75,
+    "f":33
     },
     {
-      "cx": 60,
-      "cy": 40,
-      "altezza":4,
-      "larghezza":10,
-      "colore":60,
-    "ahboh":33
+      "a": 60,
+      "b": 40,
+      "c":4,
+      "d":10,
+      "e":60,
+    "f":33
     },
     {
-      "cx": 80,
-      "cy": 30,
-      "altezza":10,
-      "larghezza":4,
-      "colore":85,
-    "ahboh":33
+      "a": 80,
+      "b": 30,
+      "c":10,
+      "d":4,
+      "e":85,
+    "f":33
     }
 ]
