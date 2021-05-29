@@ -8,4 +8,4 @@ Make a json file with multivariate data: there are 10 data-points and each data-
 - Christmas pine made by [Freepik](https://www.freepik.com/) from [Flaticon](https://www.flaticon.com) (licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/))
 
 ## Live demo
-https://jgeorgemathew.github.io/InfoVis_First_Project/
+https://jermathew.github.io/InfoVis_First_Project/
